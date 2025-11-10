@@ -22,6 +22,58 @@ async function connectDB() {
     }
 }
 
+app.use((req, res, next) => {
+    console.log(`Request received: ${req.method} ${req.url}`);
+    next();
+});
+
+app.use('/images', express.static('public/images'));
+
+app.get('/lessons', async (req, res) => {
+    try {
+        if (!db) {
+            return res.status(500).send("Database not connected");
+        }
+        const lessons = await db.collection('lessons').find({}).toArray();
+        res.json(lessons);
+    } catch (err) {
+        console.error("Error fetching lessons:", err);
+        res.status(500).send("Error fetching lessons");
+    }
+});
+
+app.post('/orders', async (req, res) => {
+    try {
+        const order = req.body;
+        const result = await db.collection('orders').insertOne(order);
+        res.status(201).json(result);
+    } catch (err) {
+        console.error("Error saving order:", err);
+        res.status(500).send("Error saving order");
+    }
+});
+
+app.put('/lessons/:id', async (req, res) => {
+    try {
+        const lessonId = new ObjectId(req.params.id);
+        const newSpaces = req.body.spaces;
+
+        const result = await db.collection('lessons').updateOne(
+            { _id: lessonId },
+            { $set: { spaces: newSpaces } }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).send("Lesson not found");
+        }
+        
+        res.json({ message: "Lesson spaces updated" });
+    } catch (err) {
+        console.error("Error updating lesson:", err);
+        res.status(500).send("Error updating lesson");
+    }
+});
+
 const port = 3000;
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
