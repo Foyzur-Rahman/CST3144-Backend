@@ -25,7 +25,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/images', express.static('public/images'));
+app.use('/images', express.static('images'));
 
 app.get('/lessons', async (req, res) => {
     try {
