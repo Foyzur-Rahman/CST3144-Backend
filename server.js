@@ -15,9 +15,7 @@ async function connectDB() {
     try {
         await client.connect();
         db = client.db("school");
-        console.log("Connected to MongoDB!");
     } catch (err) {
-        console.error("Failed to connect to MongoDB", err);
         process.exit(1);
     }
 }
@@ -39,6 +37,30 @@ app.get('/lessons', async (req, res) => {
     } catch (err) {
         console.error("Error fetching lessons:", err);
         res.status(500).send("Error fetching lessons");
+    }
+});
+
+app.get('/search', async (req, res) => {
+    try {
+        if (!db) {
+            return res.status(500).send("Database not connected");
+        }
+
+        const query = req.query.q || '';
+
+        const searchQuery = {
+            $or: [
+                { subject: { $regex: query, $options: 'i' } },
+                { location: { $regex: query, $options: 'i' } }
+            ]
+        };
+
+        const lessons = await db.collection('lessons').find(searchQuery).toArray();
+        res.json(lessons);
+
+    } catch (err) {
+        console.error("Error searching lessons:", err);
+        res.status(5.00).send("Error searching lessons");
     }
 });
 
