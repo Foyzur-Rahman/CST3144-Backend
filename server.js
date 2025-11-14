@@ -60,7 +60,7 @@ app.get('/search', async (req, res) => {
 
     } catch (err) {
         console.error("Error searching lessons:", err);
-        res.status(5.00).send("Error searching lessons");
+        res.status(500).send("Error searching lessons");
     }
 });
 
