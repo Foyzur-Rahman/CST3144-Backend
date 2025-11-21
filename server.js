@@ -1,6 +1,7 @@
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
@@ -25,7 +26,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/images', express.static('images'));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.get('/lessons', async (req, res) => {
     try {
@@ -35,7 +36,6 @@ app.get('/lessons', async (req, res) => {
         const lessons = await db.collection('lessons').find({}).toArray();
         res.json(lessons);
     } catch (err) {
-        console.error("Error fetching lessons:", err);
         res.status(500).send("Error fetching lessons");
     }
 });
@@ -59,7 +59,6 @@ app.get('/search', async (req, res) => {
         res.json(lessons);
 
     } catch (err) {
-        console.error("Error searching lessons:", err);
         res.status(500).send("Error searching lessons");
     }
 });
@@ -70,7 +69,6 @@ app.post('/orders', async (req, res) => {
         const result = await db.collection('orders').insertOne(order);
         res.status(201).json(result);
     } catch (err) {
-        console.error("Error saving order:", err);
         res.status(500).send("Error saving order");
     }
 });
@@ -91,7 +89,6 @@ app.put('/lessons/:id', async (req, res) => {
         
         res.json({ message: "Lesson spaces updated" });
     } catch (err) {
-        console.error("Error updating lesson:", err);
         res.status(500).send("Error updating lesson");
     }
 });
